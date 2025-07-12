@@ -16,8 +16,6 @@ export default async function getPrices(){
     const oneDayMs = 6 * 60 * 60 * 1000;
 
     if (latestCache && (now - latestCache.updatedAt < oneDayMs)) {
-        // Fresh enough, return cached prices
-        console.log('Using cached prices');
         return latestCache.prices;
     }
 
