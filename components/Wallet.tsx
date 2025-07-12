@@ -4,13 +4,16 @@ import { useState, useEffect } from 'react';
 import { ethers } from 'ethers';
 
 export default function WalletConnect({
+  walletAddress,
+  isConnecting,
+  setIsConnecting,
   onConnected,
 }: {
+  walletAddress: string | null;
+  isConnecting: boolean;
+  setIsConnecting: (val: boolean) => void;
   onConnected: (address: string, provider: ethers.BrowserProvider) => void;
 }) {
-  const [walletAddress, setWalletAddress] = useState<string | null>(null);
-  const [isConnecting, setIsConnecting] = useState<boolean>(false);
-
   const connectWallet = async () => {
     if (!(window as any).ethereum) {
       alert('Please install MetaMask');
@@ -19,13 +22,10 @@ export default function WalletConnect({
 
     try {
       setIsConnecting(true);
-
       const provider = new ethers.BrowserProvider((window as any).ethereum);
       await provider.send('eth_requestAccounts', []);
       const signer = await provider.getSigner();
       const address = await signer.getAddress();
-
-      setWalletAddress(address);
       onConnected(address, provider);
     } catch (err) {
       console.error('Wallet connection error:', err);
@@ -35,16 +35,16 @@ export default function WalletConnect({
   };
 
   return (
-    <div className="flex items-center gap-4">
+    <div className="flex items-center gap-4 w-full md:w-auto">
       {walletAddress ? (
-        <div className="w-[170px] h-[36px] text-[#000000] text-sm px-[16px] py-[6px] rounded-[2px] border border-[#E5E8EC] flex items-center justify-center">
-    {walletAddress.slice(0, 6)}...{walletAddress.slice(-5)}
-  </div>
+        <div className="w-full md:w-[170px] h-[44px] text-[#000000] text-sm px-[16px] py-[6px] rounded-[2px] border border-[#E5E8EC] flex items-center justify-center">
+          {walletAddress.slice(0, 6)}...{walletAddress.slice(-5)}
+        </div>
       ) : (
         <button
           onClick={connectWallet}
           disabled={isConnecting}
-          className="bg-[#007457] text-white px-4 py-2 rounded hover:bg-[#007457]"
+          className="w-full md:w-auto h-[44px] bg-[#007457] text-white px-4 py-2 hover:bg-[#005F49] transition"
         >
           {isConnecting ? 'Connecting...' : 'Connect Wallet'}
         </button>
@@ -52,3 +52,4 @@ export default function WalletConnect({
     </div>
   );
 }
+

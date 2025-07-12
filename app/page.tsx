@@ -7,7 +7,7 @@ import NoTokens from '@/components/NoTokens';
 import Image from 'next/image';
 import HoldingsSection from '@/components/Holdings';
 import TokensSection from '@/components/TokensSection';
-
+import { ethers } from 'ethers';
 import { useState } from 'react';
 
 
@@ -29,29 +29,30 @@ export default function Home() {
   const [tokens, setTokens] = useState<Token[]>([]);
   const [portfolioValue, setPortfolioValue] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(false);
+  const [isConnecting, setIsConnecting] = useState<boolean>(false);
 
-  const handleConnected = async (address: string) => {
+
+  const handleConnected = async (address: string, provider: ethers.BrowserProvider) => {
     setWalletAddress(address);
-    setLoading(true)
+    setLoading(true);
     const res = await fetch('/api/calculate', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ address }),
     });
     const data = await res.json();
-    console.log(data)
-    // Example transform from your API response into tokens and portfolioValue
+
     const tokenList: Token[] = data.map((t: any) => ({
       symbol: t.symbol,
       name: t.name,
       network: t.blockchain,
       amount: Number(t.balance),
-      formattedBalance: Number(t.formattedBalance),      // adapt field names as needed
-      valueUSD: Number(t.value),   // total token value in USD
+      formattedBalance: Number(t.formattedBalance),
+      valueUSD: Number(t.value),
     }));
     setTokens(tokenList);
     setPortfolioValue(tokenList.reduce((acc, t) => acc + t.valueUSD, 0));
-    setLoading(false)
+    setLoading(false);
   };
 
   function Skeleton({ className }: { className?: string }) {
@@ -65,29 +66,33 @@ export default function Home() {
     
 
     <main className="bg-[#FFFFFF] min-h-screen font-roobert font-medium">
-      <Navbar onConnected={handleConnected} />
-      
-      
-        <div className="w-full flex justify-center">
-          <HoldingsSection
-            loading={loading}
-            walletAddress={walletAddress}
-            portfolioValue={portfolioValue}
-          />
-        </div>
-          <div className="w-full flex justify-center mt-[56px]">
-             <TokensSection
-                loading={loading}
-                walletAddress={walletAddress}
-                tokens={tokens}
-              />
-          </div>
-        
-      
-    
+  <Navbar
+  onConnected={handleConnected}
+  walletAddress={walletAddress}
+  isConnecting={isConnecting}
+  setIsConnecting={setIsConnecting}
+/>
 
-    <Footer/>
-      
-    </main>
+  <div className="md:w-full flex justify-center px-4 sm:px-6 lg:px-8">
+    <div className="flex flex-col items-start md:items-center w-full">
+      <HoldingsSection
+        loading={loading}
+        walletAddress={walletAddress}
+        portfolioValue={portfolioValue}
+      />
+
+      <div className="flex flex-col items-start mt-[56px] md:items-center w-full">
+        <TokensSection
+          loading={loading}
+          walletAddress={walletAddress}
+          tokens={tokens}
+        />
+      </div>
+    </div>
+  </div>
+
+  <Footer />
+</main>
+
   );
 }

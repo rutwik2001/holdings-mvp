@@ -15,7 +15,7 @@ export default function HoldingsSection({
 }: HoldingsSectionProps) {
     
   return (
-    <section className="w-[1168px] h-[360px] flex flex-col justify-center border-b border-[#E5E8EC] opacity-100 relative font-roobert font-medium">
+    <section className="w-[302px] md:w-[1168px] h-[360px] flex flex-col justify-center border-b border-[#E5E8EC] opacity-100 relative font-roobert font-medium">
       <h2 className="font-roobert text-[#696E75] font-medium text-[32px] leading-[110%] tracking-[-0.02em]">
         Holdings
       </h2>
