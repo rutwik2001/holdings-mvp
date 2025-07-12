@@ -13,7 +13,7 @@ export default async function getPrices(){
         .next();
 
     const now = Date.now();
-    const oneDayMs = 24 * 60 * 60 * 1000; // refresh proces once a day
+    const oneDayMs = 6 * 60 * 60 * 1000;
 
     if (latestCache && (now - latestCache.updatedAt < oneDayMs)) {
         // Fresh enough, return cached prices

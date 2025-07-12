@@ -2,7 +2,6 @@ import clientPromise from '../../../config/mongodb';
 import {zetaChainProvider, ethSepoliaProvider, opSepoliaProvider} from '../../../config/rpcURLs';
 import { NextResponse } from 'next/server';
 import { ethers } from 'ethers';
-import contractABI from '@/config/contractABI';
 import getPrices from '@/lib/getPrices';
 import createContractInstances from "@/config/instances";
 
@@ -12,13 +11,19 @@ export async function POST(request: any) {
   console.log(address);
 
   if(!address){
-    return NextResponse.json({ error: 'Wallet address is not provided' }, { status: 500 });
+    return NextResponse.json({ error: 'Wallet address is not provided' }, { status: 400 });
   }
   try {
     
     const client = await clientPromise;
     const db = client.db('Holdings');
     const walletsCollection = db.collection('wallets')
+
+    const lastCheckPoint = await walletsCollection.findOne(
+      { address: address },
+      { sort: { timestamp: -1 } }
+    );
+
     const results = await createContractInstances()
     const pricesInUSD = await getPrices()
     let value = 0
@@ -27,11 +32,11 @@ export async function POST(request: any) {
         let balance: any = 0;
         let formattedBalance: string = "0";
         const provider =
-            item.blockchain === "sepolia"
+            item.blockchain === "Ethereum Sepolia"
               ? ethSepoliaProvider
-              : item.blockchain === "zetachain"
+              : item.blockchain === "ZetaChain Athens"
               ? zetaChainProvider
-              : item.blockchain === "opSepolia"
+              : item.blockchain === "Optimism Sepolia"
               ? opSepoliaProvider
               : null;
         if (item.address == null) {
@@ -67,13 +72,17 @@ export async function POST(request: any) {
     
     
     balances.sort((a, b) => b.value - a.value);
-    console.log(balances)
     await walletsCollection.insertOne(
         { address: address, value: value, balances: balances, timestamp: Date.now() },
         
     );
-
-    return NextResponse.json(balances, { status: 200 });
+    if(lastCheckPoint){
+      const changeInValue = value - lastCheckPoint.value
+      console.log(changeInValue)
+      return NextResponse.json({balances, value, comparedResult: {value: changeInValue, timestamp: lastCheckPoint.timestamp}}, { status: 200 });
+    }
+    return NextResponse.json({balances, value, comparedResult: null}, { status: 200 });
+    
     
   } catch (error: any) {
     console.log(error.message)

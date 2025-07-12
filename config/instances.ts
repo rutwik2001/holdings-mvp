@@ -36,11 +36,11 @@ export default async function createContractInstances(){
             let contract: any;
            
             const provider =
-                item.blockchain === "sepolia"
+                item.blockchain === "Ethereum Sepolia"
                   ? ethSepoliaProvider
-                  : item.blockchain === "zetachain"
+                  : item.blockchain === "ZetaChain Athens"
                   ? zetaChainProvider
-                  : item.blockchain === "opSepolia"
+                  : item.blockchain === "Optimism Sepolia"
                   ? opSepoliaProvider
                   : null;
          

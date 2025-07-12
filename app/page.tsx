@@ -30,6 +30,10 @@ export default function Home() {
   const [portfolioValue, setPortfolioValue] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(false);
   const [isConnecting, setIsConnecting] = useState<boolean>(false);
+  const [comparedResult, setComparedResult] = useState<{
+  value: number;
+  timestamp: number;
+} | null>(null);
 
 
   const handleConnected = async (address: string, provider: ethers.BrowserProvider) => {
@@ -42,7 +46,7 @@ export default function Home() {
     });
     const data = await res.json();
 
-    const tokenList: Token[] = data.map((t: any) => ({
+    const tokenList: Token[] = data.balances.map((t: any) => ({
       symbol: t.symbol,
       name: t.name,
       network: t.blockchain,
@@ -51,7 +55,8 @@ export default function Home() {
       valueUSD: Number(t.value),
     }));
     setTokens(tokenList);
-    setPortfolioValue(tokenList.reduce((acc, t) => acc + t.valueUSD, 0));
+    setPortfolioValue(data.value);
+    setComparedResult(data.comparedResult); 
     setLoading(false);
   };
 
@@ -79,6 +84,7 @@ export default function Home() {
         loading={loading}
         walletAddress={walletAddress}
         portfolioValue={portfolioValue}
+        comparedResult={comparedResult}
       />
 
       <div className="flex flex-col items-start mt-[56px] md:items-center w-full">
