@@ -36,9 +36,11 @@ export async function POST(request: any) {
       const changeInValue = value - lastCheckPoint.value
       return NextResponse.json({balances, value, comparedResult: {value: changeInValue, timestamp: lastCheckPoint.timestamp}}, { status: 200 });
     } else{
-      await walletsCollection.insertOne(
-        { address: address },
-    );
+      await walletsCollection.updateOne(
+        { address },                          // Match by address
+        { $setOnInsert: { address } },        // Insert this if new
+        { upsert: true }                      // Do nothing if already exists
+      );
     }
     return NextResponse.json({balances, value, comparedResult: null}, { status: 200 });
     
