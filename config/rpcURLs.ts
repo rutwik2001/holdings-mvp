@@ -1,12 +1,12 @@
-
-import { ethers } from 'ethers';
-const zetaChainRPC: string = process.env.zetaChainRPC!
-const ethSpeoliaRPC: string = process.env.ethSpeoliaRPC!
-const opSepoliaRpc: string = process.env.opSepoliaRPC!
+import { ethers, JsonRpcProvider } from 'ethers';
 
 
-const zetaChainProvider = new ethers.JsonRpcProvider(zetaChainRPC);
-const ethSepoliaProvider = new ethers.JsonRpcProvider(ethSpeoliaRPC);
-const opSepoliaProvider = new ethers.JsonRpcProvider(opSepoliaRpc);
+const zetaChainRPC: string = process.env.zetaChainRPC!;
+const ethSpeoliaRPC: string = process.env.ethSpeoliaRPC!;
+const opSepoliaRpc: string = process.env.opSepoliaRPC!;
 
-export {zetaChainProvider, ethSepoliaProvider, opSepoliaProvider}
+const zetaChainProvider: JsonRpcProvider = new ethers.JsonRpcProvider(zetaChainRPC);
+const ethSepoliaProvider: JsonRpcProvider = new ethers.JsonRpcProvider(ethSpeoliaRPC);
+const opSepoliaProvider: JsonRpcProvider = new ethers.JsonRpcProvider(opSepoliaRpc);
+
+export { zetaChainProvider, ethSepoliaProvider, opSepoliaProvider };

@@ -3,26 +3,30 @@
 import { useState, useEffect } from 'react';
 import { ethers } from 'ethers';
 
+interface WalletConnectProps {
+  walletAddress: string | null;
+  isConnecting: boolean;
+  setIsConnecting: (val: boolean) => void;
+  onConnected: (address: string, provider: ethers.BrowserProvider) => void;
+}
+
 export default function WalletConnect({
   walletAddress,
   isConnecting,
   setIsConnecting,
   onConnected,
-}: {
-  walletAddress: string | null;
-  isConnecting: boolean;
-  setIsConnecting: (val: boolean) => void;
-  onConnected: (address: string, provider: ethers.BrowserProvider) => void;
-}) {
+}: WalletConnectProps) {
   const connectWallet = async () => {
-    if (!(window as any).ethereum) {
+    const ethereum = (window as any).ethereum;
+
+    if (!ethereum) {
       alert('Please install MetaMask');
       return;
     }
 
     try {
       setIsConnecting(true);
-      const provider = new ethers.BrowserProvider((window as any).ethereum);
+      const provider = new ethers.BrowserProvider(ethereum);
       await provider.send('eth_requestAccounts', []);
       const signer = await provider.getSigner();
       const address = await signer.getAddress();
@@ -52,4 +56,3 @@ export default function WalletConnect({
     </div>
   );
 }
-

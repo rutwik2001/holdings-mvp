@@ -13,15 +13,15 @@ export default function Footer() {
 
         {/* Navigation Links */}
         <nav className="w-full grid grid-cols-2 justify-between gap-x-4 gap-y-2 md:flex md:flex-wrap md:gap-[16px] md:w-[536px] md:h-[25px] md:justify-end">
-  <a href="#" className="text-[#005741] text-sm font-roobert hover:underline">ZetaChain</a>
-  <a href="#" className="text-[#005741] text-sm font-roobert hover:underline">Docs</a>
-  <a href="#" className="text-[#005741] text-sm font-roobert hover:underline">Explorer</a>
-  <a href="#" className="text-[#005741] text-sm font-roobert hover:underline">Blog</a>
-  <a href="#" className="text-[#005741] text-sm font-roobert hover:underline">Terms</a>
-  <a href="#" className="text-[#005741] text-sm font-roobert hover:underline">Privacy Policy</a>
-  <a href="#" className="text-[#005741] text-sm font-roobert hover:underline">Updates</a>
-  <a href="#" className="text-[#005741] text-sm font-roobert hover:underline">Feedback</a>
-</nav>
+          <a href="#" className="text-[#005741] text-sm font-roobert hover:underline">ZetaChain</a>
+          <a href="#" className="text-[#005741] text-sm font-roobert hover:underline">Docs</a>
+          <a href="#" className="text-[#005741] text-sm font-roobert hover:underline">Explorer</a>
+          <a href="#" className="text-[#005741] text-sm font-roobert hover:underline">Blog</a>
+          <a href="#" className="text-[#005741] text-sm font-roobert hover:underline">Terms</a>
+          <a href="#" className="text-[#005741] text-sm font-roobert hover:underline">Privacy Policy</a>
+          <a href="#" className="text-[#005741] text-sm font-roobert hover:underline">Updates</a>
+          <a href="#" className="text-[#005741] text-sm font-roobert hover:underline">Feedback</a>
+        </nav>
 
       </div>
 
