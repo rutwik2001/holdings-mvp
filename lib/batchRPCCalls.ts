@@ -1,93 +1,94 @@
+import getPrices from './getPrices';
+import createContractInstances from '@/config/instances';
 import { ethers } from 'ethers';
-import getPrices from '@/lib/getPrices';
-import createContractInstances from "@/config/instances";
-import { ethSepoliaProvider, opSepoliaProvider, zetaChainProvider } from "@/config/rpcURLs";
 
-const providerMap: any = {
-  "Ethereum Sepolia": ethSepoliaProvider,
-  "Optimism Sepolia": opSepoliaProvider,
-  "ZetaChain Athens": zetaChainProvider,
-};
+const ERC20Abi = [
+  {
+    name: 'balanceOf',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [{ name: 'account', type: 'address' }],
+    outputs: [{ name: '', type: 'uint256' }],
+  },
+];
+
+const erc20Interface = new ethers.Interface(ERC20Abi);
 
 export default async function getBatchedBalances(address: string) {
   const pricesInUSD = await getPrices();
-  const results = await createContractInstances(); // your cached tokens
+  const { instances, ERC20Tokens, nativeTokens } = await createContractInstances();
 
-  const groupedByChain: any = {
-    "Ethereum Sepolia": [],
-    "Optimism Sepolia": [],
-    "ZetaChain Athens": [],
-  };
-
-  for (const item of results) {
-    groupedByChain[item.blockchain].push(item);
-  }
-
-  let totalValue = 0;
-  const allBalances: any[] = [];
-
-  for (const chain in groupedByChain) {
-    const provider = providerMap[chain];
-    const tokens = groupedByChain[chain];
-
-    const calls: Promise<any>[] = [];
-
-    // Native token call (only once per chain)
-    calls.push(provider.getBalance(address));
-
-    // ERC-20 balanceOf() calls
-    for (const token of tokens) {
-      if (token.instance) {
-        calls.push(token.instance.balanceOf(address));
+  const balances: any[] = [];
+  let value: number = 0;
+  const callsByChain: Record<string, { target: string, callData: string }[]> = {
+      'Ethereum Sepolia': [],
+      'Optimism Sepolia': [],
+      'ZetaChain Athens': [],
+    };
+    
+    // Group ERC20 token calls
+    for (const token of ERC20Tokens) {
+      if (token.address) {
+        const callData = erc20Interface.encodeFunctionData("balanceOf", [address]);
+        callsByChain[token.blockchain].push({
+          target: token.address,
+          callData
+        });
       }
     }
 
-    const results = await Promise.all(calls);
+    for (const chain of Object.keys(callsByChain)) {
+      const multicall = instances[chain];
+      if (!multicall) continue;
 
-    // First result is native token
-    const nativeBalance = results[0];
-    const nativeFormatted = ethers.formatEther(nativeBalance);
-    const nativeUSD =
-      (pricesInUSD["eth"]?.usd ?? 0) * Number(nativeFormatted);
+      try {
+        const [blockNumber, returnData, nativeBalance] = await multicall.aggregate(address, callsByChain[chain]);
 
-    totalValue += nativeUSD;
-    allBalances.push({
-      symbol: "ETH",
-      name: "Ethereum",
-      contractAddress: null,
-      balance: nativeBalance.toString(),
-      formattedBalance: nativeFormatted,
-      value: nativeUSD,
-      walletAddress: address,
-      blockchain: chain,
-      decimals: 18,
-    });
+        // Decode ERC20 balances
+        returnData.forEach((ret: string, i: number) => {
+          const token = ERC20Tokens.find(
+            (t) => t.blockchain === chain && t.address === callsByChain[chain][i].target
+          );
+          if (token) {
+            const balance = erc20Interface.decodeFunctionResult("balanceOf", ret)[0];
+            const formattedBalance = ethers.formatUnits(balance, token.decimals);
+            if(Number(balance) > 0){
+              balances.push({
+                symbol: token.symbol,
+                name: token.name,
+                contractAddress: token.address,
+                balance: balance.toString(),
+                formattedBalance: formattedBalance.toString(),
+                value: Number(formattedBalance) * pricesInUSD[token.symbol.toLowerCase()].usd,
+                walletAddress: address,
+                blockchain: chain,
+                decimals: token.decimals,
+                })
+              value += Number(formattedBalance) * pricesInUSD[token.symbol.toLowerCase()].usd
+            }
+            
+          }
+        });
 
-    // Then ERC-20 tokens
-    for (let i = 1; i < results.length; i++) {
-      const token = tokens[i - 1];
-      const raw = results[i];
-      const formatted = ethers.formatUnits(raw, token.decimals);
-      const usdValue =
-        Number(formatted) * (pricesInUSD[token.symbol.toLowerCase()]?.usd ?? 0);
-
-      totalValue += usdValue;
-      allBalances.push({
-        symbol: token.symbol,
-        name: token.name,
-        contractAddress: token.contractAddress,
-        balance: raw.toString(),
-        formattedBalance: formatted,
-        value: usdValue,
-        walletAddress: address,
-        blockchain: chain,
-        decimals: token.decimals,
-      });
+        // Add native token balance
+        const formattedNativeBalance = ethers.formatUnits(nativeBalance, nativeTokens[chain].decimals);
+        if(Number(nativeBalance) > 0){
+          balances.push({
+                symbol: nativeTokens[chain].symbol,
+                name: nativeTokens[chain].name,
+                contractAddress: null,
+                balance: nativeBalance.toString(),
+                formattedBalance: formattedNativeBalance.toString(),
+                value: Number(formattedNativeBalance) * pricesInUSD[nativeTokens[chain].symbol.toLowerCase()].usd,
+                walletAddress: address,
+                blockchain: chain,
+                decimals: nativeTokens[chain].decimals,
+                })
+        value += Number(formattedNativeBalance) * pricesInUSD[nativeTokens[chain].symbol.toLowerCase()].usd
+        }
+      } catch (err) {
+        console.error(`Multicall failed for ${chain} and address ${address}:`, err);
+      }
     }
-  }
-
-  // Sort by USD value descending
-  allBalances.sort((a, b) => b.value - a.value);
-
-  return { balances: allBalances, value: totalValue };
+  return {balances, value};
 }

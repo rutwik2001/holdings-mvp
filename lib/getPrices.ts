@@ -26,7 +26,6 @@ export default async function getPrices(){
          headers: {accept: 'application/json', 'x-cg-demo-api-key': process.env.coingeckoAPI!}
         });
         const prices = await pricesResp.json();
-        console.log(prices)
         await cacheCollection.insertOne({
             prices,
             updatedAt: new Date()
