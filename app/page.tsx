@@ -1,13 +1,12 @@
 'use client';
 
 import { useState } from 'react';
-import { ethers } from 'ethers';
-
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import HoldingsSection from '@/components/Holdings';
 import TokensSection from '@/components/TokensSection';
 
+// Token interface defining token properties
 interface Token {
   symbol: string;
   name: string;
@@ -17,6 +16,7 @@ interface Token {
   valueUSD: number;
 }
 
+// Interface to hold the comparison of portfolio value changes
 interface ComparedResult {
   value: number;
   timestamp: number;
@@ -30,11 +30,18 @@ export default function Home() {
   const [isConnecting, setIsConnecting] = useState<boolean>(false);
   const [comparedResult, setComparedResult] = useState<ComparedResult | null>(null);
 
-  const handleConnected = async (address: string, provider: ethers.BrowserProvider) => {
+  /**
+   * Handler called when wallet is connected.
+   * Fetches balances and portfolio data from the backend API.
+   * @param address - Connected wallet address
+   * @param provider - ethers.js BrowserProvider instance
+   */
+  const handleConnected = async (address: string) => {
     setWalletAddress(address);
     setLoading(true);
 
     try {
+      // Call backend API to get token balances and portfolio value
       const res = await fetch('/api/calculate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -43,6 +50,7 @@ export default function Home() {
 
       const data = await res.json();
 
+      // Map received balances into Token objects
       const tokenList: Token[] = data.balances.map((t: any): Token => ({
         symbol: t.symbol,
         name: t.name,
@@ -64,15 +72,17 @@ export default function Home() {
 
   return (
     <main className="bg-[#FFFFFF] min-h-screen font-roobert font-medium">
+      {/* Navbar with wallet connect controls */}
       <Navbar
         onConnected={handleConnected}
         walletAddress={walletAddress}
         isConnecting={isConnecting}
         setIsConnecting={setIsConnecting}
       />
-
+      {/* Main content container */}
       <div className="md:w-full flex justify-center px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col items-start md:items-center w-full">
+          {/* Display holdings summary */}
           <HoldingsSection
             loading={loading}
             walletAddress={walletAddress}
@@ -80,6 +90,7 @@ export default function Home() {
             comparedResult={comparedResult}
           />
 
+          {/* Display detailed tokens list */}
           <div className="flex flex-col items-start mt-[56px] md:items-center w-full">
             <TokensSection
               loading={loading}

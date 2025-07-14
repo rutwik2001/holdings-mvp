@@ -12,6 +12,7 @@ const ERC20Abi = [
   },
 ];
 
+// Represents a token object from the database
 interface Token {
   symbol: string;
   name: string;
@@ -20,6 +21,7 @@ interface Token {
   decimals: number;
 }
 
+// Represents the structure of a token balance for a wallet
 interface BalanceResult {
   symbol: string;
   name: string;
@@ -34,10 +36,21 @@ interface BalanceResult {
 
 const erc20Interface: Interface = new ethers.Interface(ERC20Abi);
 
+/**
+ * Retrieves token balances and USD values for a list of wallet addresses.
+ * Uses multicall contracts per chain to batch balanceOf calls for ERC-20 tokens
+ * and native token balances.
+ *
+ * @param address - An address from frontend -> api -> this function.
+ * @returns balances - Token balance data of different tokens
+ *          value - Total portfolio USD value 
+ */
 export default async function getBatchedBalances(
   address: string
 ): Promise<{ balances: BalanceResult[]; value: number }> {
   const pricesInUSD: Record<string, { usd: number }> = await getPrices();
+
+   // Get deployed contract instances, token metadata, and native token definitions
   const {
     instances,
     ERC20Tokens,
@@ -57,7 +70,7 @@ export default async function getBatchedBalances(
     'ZetaChain Athens': [],
   };
 
-  // Group ERC20 token calls by chain
+  // Group ERC20 token calls by chain and prepare batched calls for all (address, token) pairs
   for (const token of ERC20Tokens) {
     if (token.address) {
       const callData: string = erc20Interface.encodeFunctionData('balanceOf', [address]);
@@ -73,12 +86,13 @@ export default async function getBatchedBalances(
     if (!multicall) continue;
 
     try {
+      // Execute batched ERC-20 balanceOf calls using multicall and also the native baalnce in one function
       const [blockNumber, returnData, nativeBalance]: [bigint, string[], bigint] = await multicall.aggregate(
         address,
         callsByChain[chain]
       );
 
-      // Decode ERC20 balances
+      // Decode ERC20 balances, Only adds non-zero balances
       returnData.forEach((ret: string, i: number) => {
         const token = ERC20Tokens.find(
           (t) => t.blockchain === chain && t.address === callsByChain[chain][i].target
@@ -106,7 +120,7 @@ export default async function getBatchedBalances(
         }
       });
 
-      // Add native token balance
+      // Add native token balance, Only adds non-zero balances
       const native = nativeTokens[chain];
       const formattedNativeBalance: string = ethers.formatUnits(nativeBalance, native.decimals);
       const numericNativeBalance = Number(nativeBalance);

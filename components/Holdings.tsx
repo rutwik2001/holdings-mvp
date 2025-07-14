@@ -6,6 +6,7 @@ import relativeTime from 'dayjs/plugin/relativeTime';
 
 dayjs.extend(relativeTime);
 
+// Props for the HoldingsSection component
 type HoldingsSectionProps = {
   loading: boolean;
   walletAddress: string | null | undefined;
@@ -28,11 +29,12 @@ export default function HoldingsSection({
   <h2 className="text-[#696E75] font-medium text-[32px] leading-[110%] tracking-[-0.02em]">
     Holdings
   </h2>
-
+    {/* Loading state: show skeleton UI */}
   {loading ? (
     <div className="w-[300px] h-[100px]">
       <Skeleton className="w-full h-full" />
     </div>
+    // When wallet is connected
   ) : walletAddress ? (
     <div className="flex flex-col md:flex-row justify-between items-start md:items-end w-full mt-2">
       {/* Portfolio Value */}
@@ -44,7 +46,7 @@ export default function HoldingsSection({
         })}
       </p>
 
-      {/* Performance Comparison */}
+      {/*Show value change since last check (positive/negative/neutral) */}
       {comparedResult ? (
         <div className="mt-4 md:mt-0 flex flex-col items-start md:items-end">
           <p
@@ -72,6 +74,7 @@ export default function HoldingsSection({
       )}
 
     </div>
+    // If wallet is not connected
   ) : (
     <>
       <p className="text-[#000000] text-[80px] leading-[110%] tracking-[-0.02em]">
