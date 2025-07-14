@@ -1,6 +1,4 @@
 'use client';
-
-import { useState, useEffect } from 'react';
 import { ethers } from 'ethers';
 
 // Props definition for the WalletConnect component
@@ -9,6 +7,12 @@ interface WalletConnectProps {
   isConnecting: boolean;
   setIsConnecting: (val: boolean) => void;
   onConnected: (address: string, provider: ethers.BrowserProvider) => void;
+}
+
+declare global {
+  interface Window {
+    ethereum?: ethers.Eip1193Provider;
+  }
 }
 
  /**
@@ -24,7 +28,7 @@ export default function WalletConnect({
 }: WalletConnectProps) {
   // Grab the injected `window.ethereum` object (MetaMask or compatible)
   const connectWallet = async () => {
-    const ethereum = (window as any).ethereum;
+    const ethereum = window.ethereum;
 
     if (!ethereum) {
       // Prompt the user if MetaMask is not installed

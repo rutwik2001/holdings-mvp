@@ -6,6 +6,18 @@ import Footer from '@/components/Footer';
 import HoldingsSection from '@/components/Holdings';
 import TokensSection from '@/components/TokensSection';
 
+interface BalanceResult {
+  symbol: string;
+  name: string;
+  contractAddress: string | null;
+  balance: string;
+  formattedBalance: string;
+  value: number;
+  walletAddress: string;
+  blockchain: string;
+  decimals: number;
+}
+
 // Token interface defining token properties
 interface Token {
   symbol: string;
@@ -51,7 +63,7 @@ export default function Home() {
       const data = await res.json();
 
       // Map received balances into Token objects
-      const tokenList: Token[] = data.balances.map((t: any): Token => ({
+      const tokenList: Token[] = data.balances.map((t: BalanceResult): Token => ({
         symbol: t.symbol,
         name: t.name,
         network: t.blockchain,

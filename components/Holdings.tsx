@@ -1,6 +1,5 @@
 import React from "react";
-import Skeleton  from "./Skeleton";
-import HoldingsIllustration from "./illustrations/HoldingsIllustration"; 
+import Skeleton  from "./Skeleton"; 
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 

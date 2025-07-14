@@ -87,7 +87,7 @@ export default async function getBatchedBalances(
 
     try {
       // Execute batched ERC-20 balanceOf calls using multicall and also the native baalnce in one function
-      const [blockNumber, returnData, nativeBalance]: [bigint, string[], bigint] = await multicall.aggregate(
+      const [, returnData, nativeBalance]: [bigint, string[], bigint] = await multicall.aggregate(
         address,
         callsByChain[chain]
       );
