@@ -44,10 +44,11 @@ opSepoliaAddress=deployed_multicall_address
 zetaChainAddress=deployed_multicall_address
 
 coingeckoAPI=your_api_key
-
+```
 
 ### ▶️ Running Locally
-
+```
 npm install
 npm run build
 npm run start
+```
