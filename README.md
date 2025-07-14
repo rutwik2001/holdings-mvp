@@ -1,12 +1,14 @@
-# Holdings MVP – NextJS Website
+## Holdings MVP – NextJS Website
 
-This repository contains the website logic for the **Holdings MVP** project, responsible for fetching and showing wallet token balances across multiple EVM-compatible chains using a NextJS application.
+This repository contains the backend logic for the **Holdings MVP** project, responsible for fetching and updating wallet token balances across multiple EVM-compatible chains using scheduled cron jobs.
 🔗 **Live Website**: [https://holdings-mvp.vercel.app](https://holdings-mvp.vercel.app)
+
 ---
 
 ## 📌 Overview
 
 The cron system periodically fetches ERC-20 and native token balances for a set of tracked wallets using a **custom Multicall smart contract**, reducing RPC overhead and ensuring data is stored in a structured MongoDB database for frontend consumption.
+
 
 ---
 
@@ -51,4 +53,5 @@ coingeckoAPI=your_api_key
 npm install
 npm run build
 npm run start
+```
 ```
