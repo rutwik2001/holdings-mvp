@@ -26,10 +26,10 @@ export default async function getPrices(): Promise<Record<string, { usd: number 
     .next();
 
   const now: number = Date.now();
-  const oneDayMs: number = 6 * 60 * 60 * 1000; // 6 hours
+  const twoHoursMs: number = 2 * 60 * 60 * 1000; // 6 hours
 
   //checking for the difference in times if let 6 hrs cache price is returned
-  if (latestCache && now - latestCache.updatedAt.getTime() < oneDayMs) {
+  if (latestCache && now - latestCache.updatedAt.getTime() < twoHoursMs) {
     return latestCache.prices;
   }
 
