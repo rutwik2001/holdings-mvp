@@ -5,7 +5,7 @@ export default function Footer() {
       <div className="w-full flex flex-col md:flex-row items-start md:items-center justify-between gap-6 md:gap-0">
         {/* Logo + Beta */}
         <h1 className="text-2xl md:text-3xl font-bold text-[#005741] font-roobert flex items-center">
-          Work<span className="text-[#00A5C6]">Trail</span>
+          Work<span className="text-[#00A5C6]">Trial</span>
           <span className="ml-2 bg-[#B0FF61] text-xs font-normal rounded-full px-[6px] py-[2px] flex items-center justify-center h-[17.33px]">
             Beta
           </span>

@@ -16,7 +16,7 @@ export default function Navbar({ onConnected, walletAddress, isConnecting, setIs
       <header className="w-full h-[84px] bg-white flex justify-between items-center px-[24px] md:px-[72px] opacity-100">
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <h1 className="text-2xl md:text-3xl font-bold text-[#005741] font-roobert flex items-center">
-          Work<span className="text-[#00A5C6]">Trail</span>
+          Work<span className="text-[#00A5C6]">Trial</span>
           <span className="ml-2 bg-[#B0FF61] text-xs font-normal rounded-full px-[6px] py-[2px] flex items-center justify-center h-[17.33px]">
             Beta
           </span>
