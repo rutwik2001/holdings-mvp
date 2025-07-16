@@ -35,7 +35,7 @@ export default function Footer() {
 
   {/* Copyright */}
   <span className="text-[#000000] text-sm font-roobert mt-4 md:mt-0">
-    © {new Date().getFullYear()} WorkTrail. All rights reserved.
+    © {new Date().getFullYear()} WorkTrial. All rights reserved.
   </span>
 </div>
 
